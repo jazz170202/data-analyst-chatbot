@@ -15,15 +15,20 @@ def basic_analysis(df: pd.DataFrame) -> pd.DataFrame:
     return df.describe()
 
 def group_by_analysis(df: pd.DataFrame, group_col: str, value_col: str) -> pd.DataFrame:
+    """Groups by a column and sums a numeric column, safely handling duplicates."""
     if group_col not in df.columns or value_col not in df.columns:
         st.warning("Selected columns are not in the dataframe.")
         return pd.DataFrame()
 
-    grouped_df = df.groupby(group_col)[value_col].sum()
-    if group_col in grouped_df.columns:
-        grouped_df = grouped_df.drop(columns=[group_col])
-    grouped_df = grouped_df.reset_index()
-    return grouped_df.sort_values(by=value_col, ascending=False)
+    # Group by and sum
+    grouped_df = df.groupby(group_col, dropna=False)[value_col].sum().reset_index()
+
+    # Rename value column if it conflicts with an existing column
+    if value_col in df.columns:
+        grouped_df.rename(columns={value_col: f"{value_col}_sum"}, inplace=True)
+
+    return grouped_df.sort_values(by=f"{value_col}_sum" if value_col in df.columns else value_col, ascending=False)
+
 
 
 def top_n_values(df: pd.DataFrame, column: str, n: int = 5) -> pd.DataFrame:
