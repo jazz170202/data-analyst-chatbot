@@ -28,13 +28,15 @@ def group_by_analysis(df: pd.DataFrame, group_col: str, value_col: str) -> pd.Da
 def top_n_values(df: pd.DataFrame, column: str, n: int = 5) -> pd.DataFrame:
     """Returns top n values of a column."""
     if column not in df.columns:
-        st.warning(f"Column {column} not found in the dataset.")
+        st.warning(f"{column} is not in the dataframe.")
         return pd.DataFrame()
-    df_counts = df[column].value_counts().head(n).reset_index()
-    if df_counts.empty:
-        st.warning("No data found in the column.")
-        return pd.DataFrame()
-    return df_counts.rename(columns={'index': column, column: 'count'})
+    
+    result = df[column].value_counts().head(n).reset_index()
+    
+    # Safe renaming to avoid duplicates
+    result.columns = [column, f"{column}_count"]
+    return result
+
 
 # --- Plotting functions ---
 
