@@ -1,45 +1,60 @@
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import streamlit as st
 
-def load_data(path):
-    df = pd.read_csv(path, parse_dates=['order_date'])
-    return df
+sns.set(style="whitegrid")  # Optional styling
 
-def summarize(df):
-    summary = {
-        'rows': df.shape[0],
-        'columns': df.shape[1],
-        'column_list': list(df.columns)
-    }
-    return summary
+# --- Data analysis functions ---
 
-def show_head(df, n=5):
-    return df.head(n)
+def basic_analysis(df: pd.DataFrame) -> pd.DataFrame:
+    """Returns descriptive statistics of numeric columns."""
+    return df.describe()
 
-def describe_numeric(df):
-    return df.select_dtypes(include=['number']).describe()
-
-def top_values(df, column, n=5):
-    if column not in df.columns:
-        return None
-    return df.groupby(column).size().sort_values(ascending=False).head(n)
-
-def sum_by(df, group_col, value_col):
+def group_by_analysis(df: pd.DataFrame, group_col: str, value_col: str) -> pd.DataFrame:
+    """Groups by column and sums numeric values."""
     if group_col not in df.columns or value_col not in df.columns:
-        return None
-    return df.groupby(group_col)[value_col].sum().sort_values(ascending=False)
+        raise ValueError("Selected columns are not in the dataframe.")
+    grouped_df = df.groupby(group_col)[value_col].sum().reset_index()
+    return grouped_df.sort_values(by=value_col, ascending=False)
 
-def total_revenue(df, qty_col='quantity', price_col='unit_price'):
-    if qty_col not in df.columns or price_col not in df.columns:
-        return None
-    return (df[qty_col] * df[price_col]).sum()
+def top_n_values(df: pd.DataFrame, column: str, n: int = 5) -> pd.DataFrame:
+    """Returns top n values of a column."""
+    return df[column].value_counts().head(n).reset_index().rename(columns={'index': column, column: 'count'})
 
-def quick_insights(df):
-    insights = {}
-    # Example insights: top product by quantity, revenue by region
-    if 'product' in df.columns and 'quantity' in df.columns:
-        insights['top_product_by_quantity'] = df.groupby('product')['quantity'].sum().sort_values(ascending=False).head(1).to_dict()
-    if 'region' in df.columns and 'quantity' in df.columns and 'unit_price' in df.columns:
-        df = df.copy()
-        df['revenue'] = df['quantity'] * df['unit_price']
-        insights['revenue_by_region'] = df.groupby('region')['revenue'].sum().sort_values(ascending=False).to_dict()
-    return insights
+# --- Plotting functions using matplotlib/seaborn ---
+
+def plot_bar_chart(df: pd.DataFrame, x_col: str, y_col: str):
+    if not pd.api.types.is_numeric_dtype(df[y_col]):
+        st.warning(f"Column {y_col} is not numeric. Please select a numeric column.")
+        return
+    df_plot = df[[x_col, y_col]].dropna()
+    fig, ax = plt.subplots()
+    sns.barplot(data=df_plot, x=x_col, y=y_col, ax=ax)
+    ax.set_title(f"{y_col} by {x_col}")
+    plt.xticks(rotation=45)
+    st.pyplot(fig)
+    plt.close(fig)
+
+def plot_line_chart(df: pd.DataFrame, x_col: str, y_col: str):
+    if not pd.api.types.is_numeric_dtype(df[y_col]):
+        st.warning(f"Column {y_col} is not numeric. Please select a numeric column.")
+        return
+    df_plot = df[[x_col, y_col]].dropna()
+    fig, ax = plt.subplots()
+    sns.lineplot(data=df_plot, x=x_col, y=y_col, ax=ax, marker="o")
+    ax.set_title(f"{y_col} over {x_col}")
+    plt.xticks(rotation=45)
+    st.pyplot(fig)
+    plt.close(fig)
+
+def plot_scatter_chart(df: pd.DataFrame, x_col: str, y_col: str):
+    if not pd.api.types.is_numeric_dtype(df[y_col]):
+        st.warning(f"Column {y_col} is not numeric. Please select a numeric column.")
+        return
+    df_plot = df[[x_col, y_col]].dropna()
+    fig, ax = plt.subplots()
+    sns.scatterplot(data=df_plot, x=x_col, y=y_col, ax=ax)
+    ax.set_title(f"{y_col} vs {x_col}")
+    st.pyplot(fig)
+    plt.close(fig)
