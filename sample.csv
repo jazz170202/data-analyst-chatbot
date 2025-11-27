@@ -1,0 +1,11 @@
+order_id,product,region,quantity,unit_price,order_date
+1,Widget A,North,10,9.99,15/01/2024
+2,Widget B,South,5,19.99,17/01/2024
+3,Widget A,East,2,9.99,03/02/2024
+4,Widget C,North,7,29.99,10/02/2024
+5,Widget B,West,3,19.99,18/02/2024
+6,Widget A,South,1,9.99,01/03/2024
+7,Widget C,East,8,29.99,07/03/2024
+8,Widget A,North,4,9.99,12/03/2024
+9,Widget B,South,6,19.99,02/04/2024
+10,Widget C,West,9,29.99,15/04/2024
