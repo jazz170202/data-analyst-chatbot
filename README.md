@@ -1,7 +1,9 @@
 # Data Analyst Chatbot
 
+Check out the live version here: https://data-analyst-chatbot-simplestatistics.streamlit.app/ 
+
 This is a beginner-friendly local chatbot that helps you analyze CSV datasets from the command line.
-It uses local Python (pandas) for common data-analysis actions and optionally calls an LLM (OpenAI) for natural-language explanations and complex requests.
+It uses local Python (pandas) for common data-analysis actions.
 
 ## Features
 - Load a CSV and inspect data (head, columns, describe)
